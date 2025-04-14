@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { hashPasswordHelper } from '@/helpers/util';
+import { hashValue } from '@/helpers/util';
 import { BadRequestException } from '@nestjs/common';
 @Injectable()
 export class UsersService {
@@ -29,9 +30,7 @@ export class UsersService {
     }
 
     // hash password
-    const hashPassword: string = await hashPasswordHelper(
-      createUserDto.password,
-    );
+    const hashPassword: string = await hashValue(createUserDto.password);
     return await this.userModel.create({
       ...createUserDto,
       password: hashPassword,
@@ -52,5 +51,21 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async update(updateUserDto: UpdateUserDto) {
+    return await this.userModel.updateOne(
+      { _id: updateUserDto._id },
+      updateUserDto,
+    );
+  }
+
+  async findUserByRefreshToken(id: string, refreshToken: string) {
+    return this.userModel
+      .findOne({
+        _id: id,
+        refreshToken,
+      })
+      .exec();
   }
 }

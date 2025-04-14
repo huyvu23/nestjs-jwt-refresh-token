@@ -18,6 +18,12 @@ export class User {
     required: true,
   })
   password: string;
+
+  @Prop({
+    required: false,
+    default: null,
+  })
+  refreshToken: string; // Optional field for storing refresh token
 }
 
 // SchemaFactory.createForClass(User) generates a Mongoose schema based on the User class. This schema can then be used to create a Mongoose model, which allows interaction with the corresponding MongoDB collection.

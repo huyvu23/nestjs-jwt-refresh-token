@@ -2,10 +2,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from '@/modules/users/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private usersService: UsersService,
+  ) {
     super({
       /**
        * Where to find the JWT in the request
@@ -22,6 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
        * @see https://github.com/mikenicholson/passport-jwt#secretorkey
        */
       secretOrKey: configService.get<string>('JWT_SECRET'),
+      passReqToCallback: true,
     });
   }
 
@@ -38,10 +43,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     iat: number;
     exp: number;
   }): Promise<{ email: string; _id: string }> {
+    const { sub: userId } = payload;
     // payload chính là data mà lúc sign token đã encode vào
     return {
       email: payload.email,
-      _id: payload.sub,
+      _id: userId,
     };
   }
 }
